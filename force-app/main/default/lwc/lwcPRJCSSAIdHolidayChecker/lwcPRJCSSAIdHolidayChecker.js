@@ -1,7 +1,7 @@
 import { LightningElement } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import checkIdNumber from '@salesforce/apex/clsPRJCSSAIdHolidayController.checkIdNumber';
-import getSummary from '@salesforce/apex/clsPRJCSAiService.getSummary';
+import aiAsk from '@salesforce/apex/clsPRJCSAiService.aiAsk';
 
 const SAMPLE_ID = '8001015009087';
 const ID_LENGTH = 13;
@@ -26,6 +26,9 @@ export default class LwcPRJCSSAIdHolidayChecker extends LightningElement {
     result;
     aiSummary = '';
     isAiLoading = false;
+    aiLang = 'English';
+    idExplain = '';
+    isExplainLoading = false;
     holidays = [];
     dobDisplay = '';
     lastSearchedDisplay;
@@ -103,6 +106,29 @@ export default class LwcPRJCSSAIdHolidayChecker extends LightningElement {
         const count = this.holidays ? this.holidays.length : 0;
         return count + (count === 1 ? ' holiday' : ' holidays');
     }
+    markdownToHtml(text) {
+        if (!text) return '';
+        let s = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        s = s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\*(.+?)\*/g, '<em>$1</em>');
+        const lines = s.split('\n');
+        const out = [];
+        let inList = false;
+        for (const line of lines) {
+            const m = line.match(/^[-•]\s+(.+)/);
+            if (m) {
+                if (!inList) { out.push('<ul>'); inList = true; }
+                out.push('<li>' + m[1] + '</li>');
+            } else {
+                if (inList) { out.push('</ul>'); inList = false; }
+                if (line.trim()) out.push('<p>' + line.trim() + '</p>');
+            }
+        }
+        if (inList) out.push('</ul>');
+        return out.join('');
+    }
+    get aiSummaryHtml() { return this.markdownToHtml(this.aiSummary); }
+    get idExplainHtml() { return this.markdownToHtml(this.idExplain); }
+
     get mrzLines() {
         if (!this.result || !this.result.idNumber) {
             return [];
@@ -124,21 +150,38 @@ export default class LwcPRJCSSAIdHolidayChecker extends LightningElement {
         }
     }
 
-    async handleAiSummary() {
+    handleLang(event) {
+        this.aiLang = event.target.value;
+    }
+
+    async handleAi(event) {
+        const action = event.currentTarget.dataset.action;
         this.isAiLoading = true;
         this.aiSummary = '';
-        const names = (this.holidays || []).map((h) => h.name).join(', ');
+        const names = (this.holidays || []).map((h) => h.name + ' on ' + h.fullDate).join('; ');
         try {
-            this.aiSummary = await getSummary({ idNumber: this.idNumber, holidayNames: names });
+            this.aiSummary = await aiAsk({ action, idNumber: this.idNumber, holidayNames: names, language: this.aiLang });
         } catch (error) {
-            const message =
-                error && error.body && error.body.message
-                    ? error.body.message
-                    : 'AI is unavailable right now. Please try again.';
-            this.showToast('AI unavailable', message, 'error');
+            this.showToast('AI unavailable', this.aiError(error), 'error');
         } finally {
             this.isAiLoading = false;
         }
+    }
+
+    async handleExplain() {
+        this.isExplainLoading = true;
+        this.idExplain = '';
+        try {
+            this.idExplain = await aiAsk({ action: 'explain', idNumber: this.idNumber, holidayNames: '', language: '' });
+        } catch (error) {
+            this.showToast('AI unavailable', this.aiError(error), 'error');
+        } finally {
+            this.isExplainLoading = false;
+        }
+    }
+
+    aiError(error) {
+        return error && error.body && error.body.message ? error.body.message : 'AI is unavailable right now.';
     }
 
     handleIdChange(event) {
@@ -148,6 +191,7 @@ export default class LwcPRJCSSAIdHolidayChecker extends LightningElement {
                 ? target.value
                 : (event.detail && event.detail.value) || '';
         this.idNumber = raw.replace(/\D/g, '').slice(0, ID_LENGTH);
+        this.idExplain = '';
         this.touched = true;
         this.validateClient();
     }
@@ -190,6 +234,8 @@ export default class LwcPRJCSSAIdHolidayChecker extends LightningElement {
         this.showSamples = false;
         this.aiSummary = '';
         this.isAiLoading = false;
+        this.idExplain = '';
+        this.isExplainLoading = false;
         this.activeTab = 'tab1';
     }
 
@@ -200,6 +246,8 @@ export default class LwcPRJCSSAIdHolidayChecker extends LightningElement {
             return;
         }
         this.isLoading = true;
+        this.aiSummary = '';
+        this.idExplain = '';
         try {
             const res = await checkIdNumber({ idNumber: this.idNumber });
             if (!res.isValid) {

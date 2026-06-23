@@ -79,6 +79,27 @@
                                     <lightning-icon icon-name="utility:info" size="x-small"></lightning-icon>
                                 </button>
                             </div>
+
+                            <template if:true={showValidHint}>
+                                <div class="prjcs-ai prjcs-ai_compact">
+                                    <div class="prjcs-ai__bar">
+                                        <span class="prjcs-ai__spark">
+                                            <svg class="prjcs-ai__sparksvg" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0 L14 10 L24 12 L14 14 L12 24 L10 14 L0 12 L10 10 Z" fill="currentColor"></path></svg>
+                                        </span>
+                                        <button class="prjcs-ai__btn" onclick={handleExplain} disabled={isExplainLoading} type="button">
+                                            <svg class="prjcs-ai__btnstar" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0 L14 10 L24 12 L14 14 L12 24 L10 14 L0 12 L10 10 Z" fill="currentColor"></path></svg>
+                                            <template if:true={isExplainLoading}>Working&hellip;</template>
+                                            <template if:false={isExplainLoading}>Explain my ID</template>
+                                        </button>
+                                    </div>
+                                    <template if:true={isExplainLoading}>
+                                        <div class="prjcs-ai__skeleton"></div>
+                                    </template>
+                                    <template if:true={idExplain}>
+                                        <lightning-formatted-rich-text value={idExplainHtml} class="prjcs-ai__text"></lightning-formatted-rich-text>
+                                    </template>
+                                </div>
+                            </template>
                         </div>
 
                         <aside class="prjcs-aside">
@@ -152,6 +173,7 @@
                         </div>
                     </div>
 
+                    <div class="prjcs-id-ai">
                     <div class="prjcs-idcard">
                         <span class="prjcs-idcard__strip"></span>
                         <div class="prjcs-idcard__head">
@@ -213,18 +235,27 @@
                             <span class="prjcs-ai__spark">
                                 <svg class="prjcs-ai__sparksvg" viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path d="M12 0 L14 10 L24 12 L14 14 L12 24 L10 14 L0 12 L10 10 Z" fill="currentColor"></path></svg>
                             </span>
-                            <span class="prjcs-ai__title">AI Insight</span>
-                            <button class="prjcs-ai__btn" onclick={handleAiSummary} disabled={isAiLoading} type="button">
-                                <template if:true={isAiLoading}>Generating&hellip;</template>
-                                <template if:false={isAiLoading}>Generate</template>
+                            <span class="prjcs-ai__spacer"></span>
+                            <select class="prjcs-ai__lang" onchange={handleLang}>
+                                <option value="English">English</option>
+                                <option value="isiZulu">isiZulu</option>
+                                <option value="Afrikaans">Afrikaans</option>
+                                <option value="Sesotho">Sesotho</option>
+                                <option value="isiXhosa">isiXhosa</option>
+                            </select>
+                            <button class="prjcs-ai__btn" data-action="summary" onclick={handleAi} disabled={isAiLoading} type="button">
+                                <svg class="prjcs-ai__btnstar" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0 L14 10 L24 12 L14 14 L12 24 L10 14 L0 12 L10 10 Z" fill="currentColor"></path></svg>
+                                Insights
                             </button>
+                            <button class="prjcs-ai__btn" data-action="longweekend" onclick={handleAi} disabled={isAiLoading} type="button"><svg class="prjcs-ai__btnstar" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0 L14 10 L24 12 L14 14 L12 24 L10 14 L0 12 L10 10 Z" fill="currentColor"></path></svg>Long weekends</button>
                         </div>
                         <template if:true={isAiLoading}>
                             <div class="prjcs-ai__skeleton"></div>
                         </template>
                         <template if:true={aiSummary}>
-                            <p class="prjcs-ai__text">{aiSummary}</p>
+                            <lightning-formatted-rich-text value={aiSummaryHtml} class="prjcs-ai__text"></lightning-formatted-rich-text>
                         </template>
+                    </div>
                     </div>
                 </div>
             </template>
