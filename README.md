@@ -8,12 +8,6 @@
 | **US3** | Store decoded info; ID number is a unique key; increment a per-ID search counter | `objPRJCSSAIdSearch__c` (unique external-ID `fldPRJCSIdNumber__c`) + `clsPRJCSSAIdSearchService` upsert/increment; Tab 3 |
 | **US4** | After save, call Calendarific for the birth year and display holidays | `clsPRJCSCalendarificService` (Named Credential + `type=national`); Tab 4 |
 
-## Architecture & best practices
-
-- **Separation of concerns** — pure decoder/validator (`clsPRJCSSAIdDecoder`), callout service (`clsPRJCSCalendarificService`), persistence (`clsPRJCSSAIdSearchService`), and a thin `@AuraEnabled` controller (`clsPRJCSSAIdHolidayController`).
-- **Security (review-ready)** — controller is `with sharing`; the persistence class is `without sharing` *by design* (the public guest user must update a shared counter across visits) but still enforces **CRUD** (describe checks), **FLS on read** (`WITH SECURITY_ENFORCED`) and **FLS on write** (`Security.stripInaccessible`).
-- **No hardcoded secrets / URLs** — endpoint via **Named Credential** `ncdPRJCSCalendarific`; API key + country + version + holiday type in **Custom Metadata** `cmtPRJCSCalendarificSetting__mdt`. The committed config record holds a **placeholder** key only.
-- **Callout-before-DML** — the Apex callout runs before persistence to respect the platform rule that a callout cannot follow DML in the same transaction; a holiday-API failure is non-fatal (the search is still recorded and a soft warning is surfaced).
 - **Tests** — 18 tests, mock-based callouts, meaningful asserts, FLS exercised via a permission-set test user (`System.runAs`). Coverage: Decoder 95% · Callout 92% · Persistence 93% · Controller 80%.
 
 ## Deploy to an org
