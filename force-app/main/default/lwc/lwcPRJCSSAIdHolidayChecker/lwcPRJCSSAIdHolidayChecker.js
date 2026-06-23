@@ -27,6 +27,19 @@ export default class LwcPRJCSSAIdHolidayChecker extends LightningElement {
     dobDisplay = '';
     lastSearchedDisplay;
 
+    // Sample IDs - quick-fill testing aid (all verified valid)
+    showSamples = false;
+    sampleIds = [
+        { id: '8001015009087', dob: '1980-01-01', gender: 'Male', citizenship: 'SA Citizen' },
+        { id: '9505150500188', dob: '1995-05-15', gender: 'Female', citizenship: 'Permanent Resident' },
+        { id: '9006155500083', dob: '1990-06-15', gender: 'Male', citizenship: 'SA Citizen' },
+        { id: '0012254500080', dob: '2000-12-25', gender: 'Female', citizenship: 'SA Citizen' },
+        { id: '7503081500080', dob: '1975-03-08', gender: 'Female', citizenship: 'SA Citizen' },
+        { id: '8811306000086', dob: '1988-11-30', gender: 'Male', citizenship: 'SA Citizen' },
+        { id: '0207045000180', dob: '2002-07-04', gender: 'Male', citizenship: 'Permanent Resident' },
+        { id: '9902284999081', dob: '1999-02-28', gender: 'Female', citizenship: 'SA Citizen' }
+    ];
+
     // ---------- Step / tab model ----------
     get tabItems() {
         const make = (id, num, label) => {
@@ -119,6 +132,17 @@ export default class LwcPRJCSSAIdHolidayChecker extends LightningElement {
         this.validateClient();
     }
 
+    toggleSamples() {
+        this.showSamples = !this.showSamples;
+    }
+
+    handlePickSample(event) {
+        this.idNumber = event.currentTarget.dataset.id;
+        this.touched = true;
+        this.validateClient();
+        this.showSamples = false;
+    }
+
     handleClear() {
         this.idNumber = '';
         this.inlineError = '';
@@ -129,6 +153,7 @@ export default class LwcPRJCSSAIdHolidayChecker extends LightningElement {
         this.holidays = [];
         this.dobDisplay = '';
         this.lastSearchedDisplay = undefined;
+        this.showSamples = false;
         this.activeTab = 'tab1';
     }
 
