@@ -1,9 +1,4 @@
-# Prj-CS — South African ID Holiday Checker
-
-CloudSmiths Salesforce Developer Technical Assignment. A single Lightning Web Component (four tabs) that lets a visitor enter their **South African ID number** to validate it, decode it, store the search, and view the **public/banking holidays** for their year of birth. Built to be exposed to **Experience Cloud guest users** with no login.
-
-All components follow the naming convention **`‹3-letter-type›PRJCS‹Name›`** (e.g. `objPRJCSSAIdSearch__c`, `clsPRJCSSAIdDecoder`, `lwcPRJCSSAIdHolidayChecker`) — no underscores except the platform-mandated `__c` / `__mdt` suffixes.
-
+# Prj-CSV2.0
 ## User stories → implementation
 
 | Story | Requirement | Where it is implemented |
