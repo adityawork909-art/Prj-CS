@@ -7,7 +7,14 @@
             <div class="prjcs-hero__bg"></div>
             <div class="prjcs-hero__row">
                 <div class="prjcs-emblem">
-                    <lightning-icon icon-name="utility:identity" variant="inverse" size="small"></lightning-icon>
+                    <svg class="prjcs-flag" viewBox="0 0 90 60" xmlns="http://www.w3.org/2000/svg" aria-label="Flag of South Africa" focusable="false">
+                        <rect width="90" height="30" fill="#de3831"></rect>
+                        <rect y="30" width="90" height="30" fill="#002395"></rect>
+                        <polygon points="0,0 0,60 39,30" fill="#ffb915"></polygon>
+                        <polygon points="0,8 0,52 30,30" fill="#000000"></polygon>
+                        <path d="M90,30 L34,30 L0,0 M34,30 L0,60" fill="none" stroke="#ffffff" stroke-width="20" stroke-linejoin="round"></path>
+                        <path d="M90,30 L34,30 L0,0 M34,30 L0,60" fill="none" stroke="#007a4d" stroke-width="12" stroke-linejoin="round"></path>
+                    </svg>
                 </div>
                 <div class="prjcs-hero__text">
                     <p class="prjcs-hero__eyebrow">South Africa &middot; Public Services</p>
@@ -38,35 +45,47 @@
 
             <!-- TAB 1 - SEARCH (US1) -->
             <template if:true={isTab1}>
-                <div class="prjcs-pane">
-                    <div class="prjcs-note">
-                        <lightning-icon icon-name="utility:info" size="x-small" class="prjcs-note__icon"></lightning-icon>
-                        <p>Enter your 13-digit South African ID number to validate it, decode your date of birth, gender and citizenship, and view the public &amp; banking holidays for your year of birth.</p>
+                <div class="prjcs-pane prjcs-searchgrid">
+                    <div class="prjcs-searchgrid__form">
+                        <div class="prjcs-note">
+                            <lightning-icon icon-name="utility:info" size="x-small" class="prjcs-note__icon"></lightning-icon>
+                            <p>Enter your 13-digit South African ID number to validate it, decode your date of birth, gender and citizenship, and view the public &amp; banking holidays for your year of birth.</p>
+                        </div>
+
+                        <label class="prjcs-label" for="prjcs-id-input">South African ID Number</label>
+                        <input id="prjcs-id-input" class="prjcs-input" type="text" inputmode="numeric"
+                            maxlength="13" autocomplete="off" placeholder="0000000000000"
+                            value={idNumber} oninput={handleIdChange} onkeyup={handleKeyUp} />
+
+                        <template if:true={showInlineError}>
+                            <p class="prjcs-msg prjcs-msg_error" role="alert">
+                                <lightning-icon icon-name="utility:error" size="xx-small" variant="error"></lightning-icon>
+                                {inlineError}
+                            </p>
+                        </template>
+                        <template if:true={showValidHint}>
+                            <p class="prjcs-msg prjcs-msg_ok" role="status">
+                                <lightning-icon icon-name="utility:success" size="xx-small" variant="success"></lightning-icon>
+                                Valid &mdash; ready to search.
+                            </p>
+                        </template>
+
+                        <div class="prjcs-actions">
+                            <button class="prjcs-btn prjcs-btn_primary" disabled={isSearchDisabled} onclick={handleSearch} type="button">Check Holidays</button>
+                            <button class="prjcs-btn prjcs-btn_ghost" onclick={handleClear} type="button">Clear</button>
+                            <button class="prjcs-textbtn" onclick={handleUseSample} type="button">Use sample ID</button>
+                        </div>
                     </div>
 
-                    <label class="prjcs-label" for="prjcs-id-input">South African ID Number</label>
-                    <input id="prjcs-id-input" class="prjcs-input" type="text" inputmode="numeric"
-                        maxlength="13" autocomplete="off" placeholder="0000000000000"
-                        value={idNumber} oninput={handleIdChange} onkeyup={handleKeyUp} />
-
-                    <template if:true={showInlineError}>
-                        <p class="prjcs-msg prjcs-msg_error" role="alert">
-                            <lightning-icon icon-name="utility:error" size="xx-small" variant="error"></lightning-icon>
-                            {inlineError}
-                        </p>
-                    </template>
-                    <template if:true={showValidHint}>
-                        <p class="prjcs-msg prjcs-msg_ok" role="status">
-                            <lightning-icon icon-name="utility:success" size="xx-small" variant="success"></lightning-icon>
-                            Valid &mdash; ready to search.
-                        </p>
-                    </template>
-
-                    <div class="prjcs-actions">
-                        <button class="prjcs-btn prjcs-btn_primary" disabled={isSearchDisabled} onclick={handleSearch} type="button">Check Holidays</button>
-                        <button class="prjcs-btn prjcs-btn_ghost" onclick={handleClear} type="button">Clear</button>
-                        <button class="prjcs-textbtn" onclick={handleUseSample} type="button">Use sample ID</button>
-                    </div>
+                    <aside class="prjcs-aside">
+                        <p class="prjcs-aside__eyebrow">What you'll get</p>
+                        <ul class="prjcs-features">
+                            <li><span class="prjcs-features__ic"><lightning-icon icon-name="utility:check" size="xx-small" variant="inverse"></lightning-icon></span><span>Instant SA ID validation with the Luhn checksum</span></li>
+                            <li><span class="prjcs-features__ic"><lightning-icon icon-name="utility:check" size="xx-small" variant="inverse"></lightning-icon></span><span>Your date of birth, gender and citizenship decoded</span></li>
+                            <li><span class="prjcs-features__ic"><lightning-icon icon-name="utility:check" size="xx-small" variant="inverse"></lightning-icon></span><span>Public &amp; banking holidays for your year of birth</span></li>
+                            <li><span class="prjcs-features__ic"><lightning-icon icon-name="utility:check" size="xx-small" variant="inverse"></lightning-icon></span><span>Each search securely recorded and counted</span></li>
+                        </ul>
+                    </aside>
                 </div>
             </template>
 
