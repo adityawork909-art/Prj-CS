@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
     <label>PRJCS Holiday Access</label>
-    <description>Grants access to the SA ID Holiday Checker (Apex controller, object CRUD and FLS). Assign to the Experience Cloud guest user for public access. CloudSmiths assignment.</description>
+    <description>Grants access to the SA ID Holiday Checker (Apex controller, object Create/Read, read FLS). Guest-license safe - no Edit/Delete. Assign to the Experience Cloud guest user. CloudSmiths assignment.</description>
     <hasActivationRequired>false</hasActivationRequired>
     <classAccesses>
         <apexClass>clsPRJCSSAIdHolidayController</apexClass>
@@ -23,7 +23,7 @@
         <object>objPRJCSSAIdSearch__c</object>
         <allowCreate>true</allowCreate>
         <allowRead>true</allowRead>
-        <allowEdit>true</allowEdit>
+        <allowEdit>false</allowEdit>
         <allowDelete>false</allowDelete>
         <viewAllRecords>false</viewAllRecords>
         <modifyAllRecords>false</modifyAllRecords>
@@ -31,31 +31,31 @@
     <fieldPermissions>
         <field>objPRJCSSAIdSearch__c.fldPRJCSDateOfBirth__c</field>
         <readable>true</readable>
-        <editable>true</editable>
+        <editable>false</editable>
     </fieldPermissions>
     <fieldPermissions>
         <field>objPRJCSSAIdSearch__c.fldPRJCSGender__c</field>
         <readable>true</readable>
-        <editable>true</editable>
+        <editable>false</editable>
     </fieldPermissions>
     <fieldPermissions>
         <field>objPRJCSSAIdSearch__c.fldPRJCSSaCitizen__c</field>
         <readable>true</readable>
-        <editable>true</editable>
+        <editable>false</editable>
     </fieldPermissions>
     <fieldPermissions>
         <field>objPRJCSSAIdSearch__c.fldPRJCSSearchCount__c</field>
         <readable>true</readable>
-        <editable>true</editable>
+        <editable>false</editable>
     </fieldPermissions>
     <fieldPermissions>
         <field>objPRJCSSAIdSearch__c.fldPRJCSHolidayYear__c</field>
         <readable>true</readable>
-        <editable>true</editable>
+        <editable>false</editable>
     </fieldPermissions>
     <fieldPermissions>
         <field>objPRJCSSAIdSearch__c.fldPRJCSLastSearchedDate__c</field>
         <readable>true</readable>
-        <editable>true</editable>
+        <editable>false</editable>
     </fieldPermissions>
 </PermissionSet>

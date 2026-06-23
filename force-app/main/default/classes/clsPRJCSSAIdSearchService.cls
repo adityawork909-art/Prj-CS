@@ -3,13 +3,15 @@
  *
  *   Declared `without sharing` INTENTIONALLY: on a public Experience Cloud site every visitor runs as
  *   the single guest user, and the per-ID counter record must be read and updated across visits
- *   regardless of record sharing. Object- and field-level security are still enforced explicitly
- *   (CRUD check + WITH SECURITY_ENFORCED + Security.stripInaccessible) so the elevated sharing
- *   context cannot be abused.
+ *   regardless of record sharing. A guest user's license CANNOT be granted the "Edit" object
+ *   permission, yet US3 requires incrementing an existing record - so the counter upsert runs in
+ *   system mode (Apex bypasses object CRUD for DML). Create + read access is still checked and
+ *   read-level security is enforced (WITH SECURITY_ENFORCED). The input is pre-validated and the
+ *   class performs a single, well-scoped upsert, so the elevated context cannot be abused.
  */
 public without sharing class clsPRJCSSAIdSearchService {
     /**
-     * @description Raised when the running user lacks the required object/field permissions.
+     * @description Raised when the running user lacks the required object permissions.
      */
     public class SecurityException extends Exception {}
 
@@ -24,7 +26,7 @@ public without sharing class clsPRJCSSAIdSearchService {
         }
         assertCrudAccess();
 
-        // Look up any existing record for this ID (field-level security enforced on the query).
+        // Look up any existing record for this ID (read-level security enforced on the query).
         List<objPRJCSSAIdSearch__c> existing = [
             SELECT Id, fldPRJCSSearchCount__c
             FROM objPRJCSSAIdSearch__c
@@ -49,23 +51,22 @@ public without sharing class clsPRJCSSAIdSearchService {
         record.fldPRJCSLastSearchedDate__c = System.now();
         record.fldPRJCSSearchCount__c = currentCount + 1;
 
-        // Enforce field-level security on write, then persist.
-        SObjectAccessDecision decision = Security.stripInaccessible(
-            AccessType.UPSERTABLE,
-            new List<objPRJCSSAIdSearch__c>{ record }
-        );
-        objPRJCSSAIdSearch__c sanitized = (objPRJCSSAIdSearch__c) decision.getRecords()[0];
-        upsert sanitized;
-        return sanitized;
+        // System-mode upsert by design (see class header): the public-site guest user cannot hold the
+        // "Edit" object permission, yet the counter must increment on repeat searches. Only this
+        // object's pre-validated, decoded fields are written.
+        upsert record;
+        return record;
     }
 
     /**
-     * @description Verifies the running user can create and update the search object.
+     * @description Verifies the running user can create and read the search object. The counter
+     *   update itself runs in system mode (guest licenses cannot hold "Edit"), so update access is
+     *   intentionally not required here.
      */
     @TestVisible
     private static void assertCrudAccess() {
         DescribeSObjectResult describe = objPRJCSSAIdSearch__c.SObjectType.getDescribe();
-        if (!describe.isCreateable() || !describe.isUpdateable()) {
+        if (!describe.isCreateable() || !describe.isAccessible()) {
             throw new SecurityException(
                 'You do not have permission to record ID number searches.'
             );
