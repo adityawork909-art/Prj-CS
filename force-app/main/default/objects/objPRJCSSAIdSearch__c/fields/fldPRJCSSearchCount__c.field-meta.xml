@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>fldPRJCSSearchCount__c</fullName>
+    <defaultValue>0</defaultValue>
+    <description>Number of times this ID number has been searched. Incremented on every valid search of the same ID (User Story 3).</description>
+    <externalId>false</externalId>
+    <label>Search Count</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

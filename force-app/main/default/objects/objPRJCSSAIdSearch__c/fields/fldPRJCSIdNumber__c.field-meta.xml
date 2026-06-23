@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>fldPRJCSIdNumber__c</fullName>
+    <caseSensitive>false</caseSensitive>
+    <description>The 13-digit South African ID number. Unique external key used for upsert and as the reference for the search counter (User Story 3).</description>
+    <externalId>true</externalId>
+    <label>ID Number</label>
+    <length>13</length>
+    <required>true</required>
+    <type>Text</type>
+    <unique>true</unique>
+</CustomField>

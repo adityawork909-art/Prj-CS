@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>fldPRJCSSaCitizen__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>True = SA Citizen, False = Permanent Resident (digit 11 of the SA ID number: 0 = citizen, 1 = permanent resident). User Story 3.</description>
+    <externalId>false</externalId>
+    <label>SA Citizen</label>
+    <type>Checkbox</type>
+</CustomField>

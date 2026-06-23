@@ -1,0 +1,201 @@
+<template>
+    <lightning-card icon-name="standard:event" title="South African ID Holiday Checker">
+        <span slot="actions">
+            <lightning-badge label="CloudSmiths"></lightning-badge>
+        </span>
+
+        <div class="slds-p-horizontal_medium slds-p-bottom_medium prjcs-container">
+            <template if:true={isLoading}>
+                <lightning-spinner alternative-text="Checking ID number..." size="medium" variant="brand"></lightning-spinner>
+            </template>
+
+            <lightning-tabset variant="scoped" active-tab-value={activeTab} onactive={handleTabActive}>
+
+                <!-- TAB 1 - SEARCH (User Story 1) -->
+                <lightning-tab label="1. Search" value="tab1">
+                    <div class="slds-box slds-m-bottom_medium prjcs-info">
+                        <div class="slds-media slds-media_center">
+                            <div class="slds-media__figure">
+                                <lightning-icon icon-name="utility:info_alt" size="small" variant="inverse"></lightning-icon>
+                            </div>
+                            <div class="slds-media__body">
+                                <h3 class="prjcs-info__title">What does this page do?</h3>
+                                <p class="slds-m-top_xx-small prjcs-info__text">
+                                    Enter your 13-digit South African ID number to validate it, decode your
+                                    date of birth, gender and citizenship, and view the public &amp; banking
+                                    holidays for your year of birth.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="prjcs-search">
+                        <lightning-input
+                            type="text"
+                            label="South African ID Number"
+                            value={idNumber}
+                            placeholder="e.g. 8001015009087"
+                            maxlength="13"
+                            inputmode="numeric"
+                            autocomplete="off"
+                            field-level-help="13 digits in the format YYMMDD SSSS C A Z. The search button enables only when the number is valid."
+                            onchange={handleIdChange}
+                            onkeyup={handleKeyUp}
+                            class="prjcs-input">
+                        </lightning-input>
+
+                        <template if:true={showInlineError}>
+                            <div class="slds-text-color_error slds-text-body_small slds-m-top_xx-small" role="alert">
+                                <lightning-icon icon-name="utility:error" size="xx-small" variant="error" class="slds-m-right_xx-small"></lightning-icon>
+                                {inlineError}
+                            </div>
+                        </template>
+                        <template if:true={showValidHint}>
+                            <div class="slds-text-color_success slds-text-body_small slds-m-top_xx-small" role="status">
+                                <lightning-icon icon-name="utility:success" size="xx-small" variant="success" class="slds-m-right_xx-small"></lightning-icon>
+                                Looks valid - ready to search.
+                            </div>
+                        </template>
+
+                        <div class="slds-m-top_medium">
+                            <lightning-button
+                                variant="brand"
+                                label="Check Holidays"
+                                icon-name="utility:search"
+                                disabled={isSearchDisabled}
+                                onclick={handleSearch}
+                                class="slds-m-right_x-small">
+                            </lightning-button>
+                            <lightning-button
+                                variant="neutral"
+                                label="Clear"
+                                onclick={handleClear}
+                                class="slds-m-right_x-small">
+                            </lightning-button>
+                            <lightning-button
+                                variant="base"
+                                label="Use sample ID"
+                                onclick={handleUseSample}>
+                            </lightning-button>
+                        </div>
+                    </div>
+                </lightning-tab>
+
+                <!-- TAB 2 - VALIDATION & DECODE (User Story 2) -->
+                <lightning-tab label="2. Validation" value="tab2">
+                    <template if:false={hasResult}>
+                        <div class="prjcs-empty slds-align_absolute-center">
+                            <div class="slds-text-align_center slds-text-color_weak">
+                                <lightning-icon icon-name="utility:identity" size="large" class="prjcs-empty__icon"></lightning-icon>
+                                <p class="slds-m-top_small">Run a search to see the decoded breakdown of the ID number.</p>
+                            </div>
+                        </div>
+                    </template>
+                    <template if:true={hasResult}>
+                        <div class="slds-m-bottom_medium prjcs-valid-banner">
+                            <lightning-icon icon-name="utility:success" variant="inverse" size="small"></lightning-icon>
+                            <span class="slds-m-left_x-small slds-text-heading_small">Valid South African ID number</span>
+                        </div>
+                        <lightning-layout multiple-rows="true" pull-to-boundary="small">
+                            <lightning-layout-item size="12" small-device-size="4" padding="around-small">
+                                <div class="prjcs-tile">
+                                    <p class="prjcs-tile__label">Date of Birth</p>
+                                    <p class="prjcs-tile__value">{dobDisplay}</p>
+                                </div>
+                            </lightning-layout-item>
+                            <lightning-layout-item size="12" small-device-size="4" padding="around-small">
+                                <div class="prjcs-tile">
+                                    <p class="prjcs-tile__label">Gender</p>
+                                    <p class="prjcs-tile__value">{result.gender}</p>
+                                </div>
+                            </lightning-layout-item>
+                            <lightning-layout-item size="12" small-device-size="4" padding="around-small">
+                                <div class="prjcs-tile">
+                                    <p class="prjcs-tile__label">Citizenship</p>
+                                    <p class="prjcs-tile__value">{citizenshipLabel}</p>
+                                </div>
+                            </lightning-layout-item>
+                        </lightning-layout>
+                    </template>
+                </lightning-tab>
+
+                <!-- TAB 3 - SAVED RECORD (User Story 3) -->
+                <lightning-tab label="3. Saved Record" value="tab3">
+                    <template if:false={hasResult}>
+                        <div class="prjcs-empty slds-align_absolute-center">
+                            <div class="slds-text-align_center slds-text-color_weak">
+                                <lightning-icon icon-name="utility:database" size="large" class="prjcs-empty__icon"></lightning-icon>
+                                <p class="slds-m-top_small">No record yet. Search a valid ID to store it and track how often it is queried.</p>
+                            </div>
+                        </div>
+                    </template>
+                    <template if:true={hasResult}>
+                        <lightning-layout multiple-rows="true" vertical-align="stretch" pull-to-boundary="small">
+                            <lightning-layout-item size="12" medium-device-size="8" padding="around-small">
+                                <div class="prjcs-tile prjcs-tile_full">
+                                    <p class="prjcs-tile__label">ID Number (unique key)</p>
+                                    <p class="prjcs-tile__value prjcs-mono">{result.idNumber}</p>
+                                    <p class="prjcs-tile__label slds-m-top_small">Last searched</p>
+                                    <p class="prjcs-tile__value">
+                                        <lightning-formatted-date-time
+                                            value={lastSearchedDisplay}
+                                            year="numeric" month="short" day="2-digit"
+                                            hour="2-digit" minute="2-digit">
+                                        </lightning-formatted-date-time>
+                                    </p>
+                                </div>
+                            </lightning-layout-item>
+                            <lightning-layout-item size="12" medium-device-size="4" padding="around-small">
+                                <div class="prjcs-counter">
+                                    <p class="prjcs-counter__label">Times searched</p>
+                                    <p class="prjcs-counter__value">{result.searchCount}</p>
+                                </div>
+                            </lightning-layout-item>
+                        </lightning-layout>
+                    </template>
+                </lightning-tab>
+
+                <!-- TAB 4 - HOLIDAYS (User Story 4) -->
+                <lightning-tab label="4. Holidays" value="tab4">
+                    <template if:false={hasResult}>
+                        <div class="prjcs-empty slds-align_absolute-center">
+                            <div class="slds-text-align_center slds-text-color_weak">
+                                <lightning-icon icon-name="utility:event" size="large" class="prjcs-empty__icon"></lightning-icon>
+                                <p class="slds-m-top_small">Public &amp; banking holidays for your birth year appear here after a search.</p>
+                            </div>
+                        </div>
+                    </template>
+                    <template if:true={hasResult}>
+                        <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-bottom_small">
+                            <h3 class="slds-text-heading_small">Public &amp; banking holidays in {result.holidayYear}</h3>
+                            <lightning-badge label={holidayCountLabel}></lightning-badge>
+                        </div>
+
+                        <template if:true={holidayWarning}>
+                            <div class="slds-box slds-box_x-small slds-theme_warning slds-m-bottom_small">
+                                <lightning-icon icon-name="utility:warning" size="x-small"></lightning-icon>
+                                <span class="slds-m-left_x-small">{holidayWarning}</span>
+                            </div>
+                        </template>
+
+                        <template if:true={hasHolidays}>
+                            <lightning-datatable
+                                key-field="id"
+                                data={holidays}
+                                columns={holidayColumns}
+                                hide-checkbox-column
+                                column-widths-mode="auto">
+                            </lightning-datatable>
+                        </template>
+                        <template if:false={hasHolidays}>
+                            <div class="slds-text-color_weak slds-p-around_medium slds-text-align_center">
+                                No holidays were returned for {result.holidayYear}.
+                            </div>
+                        </template>
+                    </template>
+                </lightning-tab>
+
+            </lightning-tabset>
+        </div>
+    </lightning-card>
+</template>

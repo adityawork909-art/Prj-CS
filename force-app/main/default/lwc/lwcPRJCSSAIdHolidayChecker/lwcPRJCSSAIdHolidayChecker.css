@@ -1,0 +1,106 @@
+:host {
+    --prjcs-brand: #0b5cab;
+    --prjcs-brand-dark: #032d60;
+    --prjcs-accent: #1ab394;
+}
+
+.prjcs-container {
+    position: relative;
+    min-height: 22rem;
+}
+
+/* Info / description box (User Story 1) */
+.prjcs-info {
+    border: none;
+    border-radius: 0.5rem;
+    background: linear-gradient(135deg, var(--prjcs-brand-dark) 0%, var(--prjcs-brand) 100%);
+    color: #ffffff;
+}
+.prjcs-info__title {
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 0.95rem;
+}
+.prjcs-info__text {
+    color: #e6f1ff;
+    line-height: 1.4;
+}
+
+/* Search input */
+.prjcs-input {
+    max-width: 28rem;
+    display: block;
+}
+.prjcs-mono {
+    font-family: 'Consolas', 'Monaco', monospace;
+    letter-spacing: 0.08em;
+}
+
+/* Decoded tiles */
+.prjcs-tile {
+    background: #ffffff;
+    border: 1px solid #e5e5e5;
+    border-left: 4px solid var(--prjcs-brand);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    height: 100%;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.prjcs-tile:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+.prjcs-tile__label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #706e6b;
+}
+.prjcs-tile__value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #080707;
+    margin-top: 0.25rem;
+}
+
+/* Search counter (User Story 3) */
+.prjcs-counter {
+    height: 100%;
+    border-radius: 0.5rem;
+    padding: 1.25rem;
+    text-align: center;
+    color: #ffffff;
+    background: linear-gradient(135deg, var(--prjcs-brand) 0%, var(--prjcs-accent) 100%);
+    box-shadow: 0 4px 14px rgba(11, 92, 171, 0.35);
+}
+.prjcs-counter__label {
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    opacity: 0.9;
+}
+.prjcs-counter__value {
+    font-size: 3.5rem;
+    line-height: 1;
+    font-weight: 800;
+    margin-top: 0.25rem;
+}
+
+/* Valid banner (User Story 2) */
+.prjcs-valid-banner {
+    display: flex;
+    align-items: center;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    color: #ffffff;
+    background: linear-gradient(135deg, #04844b 0%, var(--prjcs-accent) 100%);
+}
+
+/* Empty states */
+.prjcs-empty {
+    min-height: 16rem;
+}
+.prjcs-empty__icon {
+    opacity: 0.4;
+}

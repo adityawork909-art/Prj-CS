@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description>Stores decoded South African ID number searches and a per-ID search counter (CloudSmiths assignment - User Story 3).</description>
+    <enableActivities>false</enableActivities>
+    <enableBulkApi>true</enableBulkApi>
+    <enableHistory>false</enableHistory>
+    <enableReports>true</enableReports>
+    <enableSearch>true</enableSearch>
+    <enableSharing>true</enableSharing>
+    <enableStreamingApi>true</enableStreamingApi>
+    <label>SA ID Search</label>
+    <nameField>
+        <displayFormat>SAID-{00000}</displayFormat>
+        <label>SA ID Search Number</label>
+        <type>AutoNumber</type>
+    </nameField>
+    <pluralLabel>SA ID Searches</pluralLabel>
+    <sharingModel>Private</sharingModel>
+    <visibility>Public</visibility>
+</CustomObject>
