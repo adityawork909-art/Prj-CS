@@ -5,23 +5,10 @@ import checkIdNumber from '@salesforce/apex/clsPRJCSSAIdHolidayController.checkI
 const SAMPLE_ID = '8001015009087';
 const ID_LENGTH = 13;
 
-const HOLIDAY_COLUMNS = [
-    {
-        label: 'Holiday',
-        fieldName: 'name',
-        type: 'text',
-        wrapText: true,
-        cellAttributes: { class: 'slds-text-title_bold' }
-    },
-    { label: 'Date', fieldName: 'displayDate', type: 'text', initialWidth: 170 },
-    { label: 'Type', fieldName: 'holidayType', type: 'text', wrapText: true }
-];
-
 /**
- * SA ID Holiday Checker - single component, four tabs (User Stories 1-4).
- * Performs the same Luhn/date/citizenship validation client-side (US2) so the
- * search button stays disabled until the ID is valid, then calls Apex to decode,
- * persist (US3) and fetch holidays (US4).
+ * SA ID Holiday Checker - single component, four guided steps (User Stories 1-4).
+ * Validates the SA ID client-side (Luhn/date/citizenship) so the search button stays
+ * disabled until valid, then calls Apex to decode, persist (US3) and fetch holidays (US4).
  */
 export default class LwcPRJCSSAIdHolidayChecker extends LightningElement {
     idNumber = '';
@@ -40,7 +27,39 @@ export default class LwcPRJCSSAIdHolidayChecker extends LightningElement {
     dobDisplay = '';
     lastSearchedDisplay;
 
-    holidayColumns = HOLIDAY_COLUMNS;
+    // ---------- Step / tab model ----------
+    get tabItems() {
+        const make = (id, num, label) => {
+            const isActive = this.activeTab === id;
+            const isLocked = id !== 'tab1' && !this.hasResult;
+            let cls = 'prjcs-step';
+            if (isActive) {
+                cls += ' prjcs-step_active';
+            }
+            if (isLocked) {
+                cls += ' prjcs-step_locked';
+            }
+            return { id, num, label, active: isActive, disabled: isLocked, cls };
+        };
+        return [
+            make('tab1', '1', 'Search'),
+            make('tab2', '2', 'Validation'),
+            make('tab3', '3', 'Saved Record'),
+            make('tab4', '4', 'Holidays')
+        ];
+    }
+    get isTab1() {
+        return this.activeTab === 'tab1';
+    }
+    get isTab2() {
+        return this.activeTab === 'tab2';
+    }
+    get isTab3() {
+        return this.activeTab === 'tab3';
+    }
+    get isTab4() {
+        return this.activeTab === 'tab4';
+    }
 
     // ---------- Getters ----------
     get isSearchDisabled() {
@@ -70,8 +89,19 @@ export default class LwcPRJCSSAIdHolidayChecker extends LightningElement {
     }
 
     // ---------- Handlers ----------
+    handleTabClick(event) {
+        const id = event.currentTarget.dataset.id;
+        if (id === 'tab1' || this.hasResult) {
+            this.activeTab = id;
+        }
+    }
+
     handleIdChange(event) {
-        const raw = event.detail && event.detail.value ? event.detail.value : '';
+        const target = event.target || {};
+        const raw =
+            typeof target.value === 'string'
+                ? target.value
+                : (event.detail && event.detail.value) || '';
         this.idNumber = raw.replace(/\D/g, '').slice(0, ID_LENGTH);
         this.touched = true;
         this.validateClient();
@@ -102,10 +132,6 @@ export default class LwcPRJCSSAIdHolidayChecker extends LightningElement {
         this.activeTab = 'tab1';
     }
 
-    handleTabActive(event) {
-        this.activeTab = event.target.value;
-    }
-
     async handleSearch() {
         this.validateClient();
         if (!this.isValidClient) {
@@ -129,16 +155,17 @@ export default class LwcPRJCSSAIdHolidayChecker extends LightningElement {
                 day: '2-digit'
             });
             this.lastSearchedDisplay = new Date().toISOString();
-            this.holidays = (res.holidays || []).map((holiday, index) => ({
-                id: index + '-' + (holiday.holidayDate || holiday.name),
-                name: holiday.name,
-                holidayType: holiday.holidayType,
-                displayDate: this.formatIsoDate(holiday.holidayDate, {
-                    year: 'numeric',
-                    month: 'short',
-                    day: '2-digit'
-                })
-            }));
+            this.holidays = (res.holidays || []).map((holiday, index) => {
+                const parts = this.holidayParts(holiday.holidayDate);
+                return {
+                    id: index + '-' + (holiday.holidayDate || holiday.name),
+                    name: holiday.name,
+                    holidayType: holiday.holidayType || 'Holiday',
+                    mon: parts.mon,
+                    day: parts.day,
+                    fullDate: parts.full
+                };
+            });
             this.hasResult = true;
             this.activeTab = 'tab2';
             this.showToast(
@@ -248,6 +275,27 @@ export default class LwcPRJCSSAIdHolidayChecker extends LightningElement {
             }
         }
         return iso;
+    }
+
+    holidayParts(iso) {
+        const parts = String(iso || '').substring(0, 10).split('-');
+        if (parts.length !== 3) {
+            return { mon: '', day: '', full: iso || '' };
+        }
+        const parsed = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+        if (Number.isNaN(parsed.getTime())) {
+            return { mon: '', day: parts[2], full: iso };
+        }
+        return {
+            mon: parsed.toLocaleString(undefined, { month: 'short' }).toUpperCase(),
+            day: parts[2],
+            full: parsed.toLocaleDateString(undefined, {
+                weekday: 'short',
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric'
+            })
+        };
     }
 
     showToast(title, message, variant, mode) {
