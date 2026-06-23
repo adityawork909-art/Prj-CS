@@ -74,7 +74,7 @@
                             <div class="prjcs-actions">
                                 <button class="prjcs-btn prjcs-btn_primary" disabled={isSearchDisabled} onclick={handleSearch} type="button">Check Holidays</button>
                                 <button class="prjcs-btn prjcs-btn_ghost" onclick={handleClear} type="button">Clear</button>
-                                <button class="prjcs-textbtn" onclick={handleUseSample} type="button">Use sample ID</button>
+                                <button class="prjcs-textbtn" onclick={handleUseSample} type="button">Check sample ID</button>
                                 <button class="prjcs-iconbtn" onclick={toggleSamples} type="button" title="Show sample IDs to test" aria-label="Show sample IDs to test">
                                     <lightning-icon icon-name="utility:info" size="x-small"></lightning-icon>
                                 </button>
@@ -95,7 +95,7 @@
                     <template if:true={showSamples}>
                         <div class="prjcs-samples">
                             <div class="prjcs-samples__head">
-                                <h3 class="prjcs-samples__title">Sample IDs &mdash; click a row to test</h3>
+                                <h3 class="prjcs-samples__title">Sample IDs &mdash; click a row to check</h3>
                                 <button class="prjcs-textbtn" onclick={toggleSamples} type="button">Hide</button>
                             </div>
                             <div class="prjcs-table__scroll">
@@ -116,7 +116,7 @@
                                                 <td>{s.dob}</td>
                                                 <td>{s.gender}</td>
                                                 <td>{s.citizenship}</td>
-                                                <td class="prjcs-table__use">Use &rsaquo;</td>
+                                                <td class="prjcs-table__use">Check &rsaquo;</td>
                                             </tr>
                                         </template>
                                     </tbody>
@@ -150,6 +150,81 @@
                             <p class="prjcs-tile__label">Citizenship</p>
                             <p class="prjcs-tile__value">{citizenshipLabel}</p>
                         </div>
+                    </div>
+
+                    <div class="prjcs-idcard">
+                        <span class="prjcs-idcard__strip"></span>
+                        <div class="prjcs-idcard__head">
+                            <svg class="prjcs-idcard__flag" viewBox="0 0 90 60" xmlns="http://www.w3.org/2000/svg" aria-label="Flag of South Africa" focusable="false">
+                                <rect width="90" height="30" fill="#de3831"></rect>
+                                <rect y="30" width="90" height="30" fill="#002395"></rect>
+                                <polygon points="0,0 0,60 39,30" fill="#ffb915"></polygon>
+                                <polygon points="0,8 0,52 30,30" fill="#000000"></polygon>
+                                <path d="M90,30 L34,30 L0,0 M34,30 L0,60" fill="none" stroke="#ffffff" stroke-width="20" stroke-linejoin="round"></path>
+                                <path d="M90,30 L34,30 L0,0 M34,30 L0,60" fill="none" stroke="#007a4d" stroke-width="12" stroke-linejoin="round"></path>
+                            </svg>
+                            <div class="prjcs-idcard__titles">
+                                <p class="prjcs-idcard__country">Republic of South Africa</p>
+                                <p class="prjcs-idcard__type">Identity Card</p>
+                            </div>
+                            <span class="prjcs-idcard__rsa">RSA</span>
+                        </div>
+                        <div class="prjcs-idcard__body">
+                            <div class="prjcs-idcard__photo">
+                                <lightning-icon icon-name="utility:lock" size="small" class="prjcs-idcard__lock"></lightning-icon>
+                                <p class="prjcs-idcard__photonote">Photo hidden for privacy purposes</p>
+                            </div>
+                            <div class="prjcs-idcard__fields">
+                                <div class="prjcs-idcard__field">
+                                    <span class="prjcs-idcard__lbl">Identity Number</span>
+                                    <span class="prjcs-idcard__val prjcs-mono">{result.idNumber}</span>
+                                </div>
+                                <div class="prjcs-idcard__field">
+                                    <span class="prjcs-idcard__lbl">Date of Birth</span>
+                                    <span class="prjcs-idcard__val">{dobDisplay}</span>
+                                </div>
+                                <div class="prjcs-idcard__field">
+                                    <span class="prjcs-idcard__lbl">Sex</span>
+                                    <span class="prjcs-idcard__val">{result.gender}</span>
+                                </div>
+                                <div class="prjcs-idcard__field">
+                                    <span class="prjcs-idcard__lbl">Status</span>
+                                    <span class="prjcs-idcard__val">{citizenshipLabel}</span>
+                                </div>
+                                <div class="prjcs-idcard__field">
+                                    <span class="prjcs-idcard__lbl">Nationality</span>
+                                    <span class="prjcs-idcard__val">South African</span>
+                                </div>
+                                <div class="prjcs-idcard__field">
+                                    <span class="prjcs-idcard__lbl">Country of Birth</span>
+                                    <span class="prjcs-idcard__val">South Africa</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="prjcs-idcard__mrz">
+                            <template for:each={mrzLines} for:item="m">
+                                <span key={m.key} class="prjcs-idcard__mrzline">{m.text}</span>
+                            </template>
+                        </div>
+                    </div>
+
+                    <div class="prjcs-ai">
+                        <div class="prjcs-ai__bar">
+                            <span class="prjcs-ai__spark">
+                                <svg class="prjcs-ai__sparksvg" viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path d="M12 0 L14 10 L24 12 L14 14 L12 24 L10 14 L0 12 L10 10 Z" fill="currentColor"></path></svg>
+                            </span>
+                            <span class="prjcs-ai__title">AI Insight</span>
+                            <button class="prjcs-ai__btn" onclick={handleAiSummary} disabled={isAiLoading} type="button">
+                                <template if:true={isAiLoading}>Generating&hellip;</template>
+                                <template if:false={isAiLoading}>Generate</template>
+                            </button>
+                        </div>
+                        <template if:true={isAiLoading}>
+                            <div class="prjcs-ai__skeleton"></div>
+                        </template>
+                        <template if:true={aiSummary}>
+                            <p class="prjcs-ai__text">{aiSummary}</p>
+                        </template>
                     </div>
                 </div>
             </template>

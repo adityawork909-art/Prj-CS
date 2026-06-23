@@ -22,4 +22,12 @@
         <field>fldPRJCSHolidayType__c</field>
         <value xsi:type="xsd:string">national</value>
     </values>
+    <values>
+        <field>fldPRJCSDeepSeekModel__c</field>
+        <value xsi:type="xsd:string">deepseek-chat</value>
+    </values>
+    <values>
+        <field>fldPRJCSDeepSeekKey__c</field>
+        <value xsi:type="xsd:string">REPLACE_WITH_YOUR_DEEPSEEK_API_KEY</value>
+    </values>
 </CustomMetadata>

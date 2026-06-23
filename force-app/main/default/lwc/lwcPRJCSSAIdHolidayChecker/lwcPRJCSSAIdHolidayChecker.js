@@ -1,6 +1,7 @@
 import { LightningElement } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import checkIdNumber from '@salesforce/apex/clsPRJCSSAIdHolidayController.checkIdNumber';
+import getSummary from '@salesforce/apex/clsPRJCSAiService.getSummary';
 
 const SAMPLE_ID = '8001015009087';
 const ID_LENGTH = 13;
@@ -23,6 +24,8 @@ export default class LwcPRJCSSAIdHolidayChecker extends LightningElement {
     // Server result
     hasResult = false;
     result;
+    aiSummary = '';
+    isAiLoading = false;
     holidays = [];
     dobDisplay = '';
     lastSearchedDisplay;
@@ -100,12 +103,41 @@ export default class LwcPRJCSSAIdHolidayChecker extends LightningElement {
         const count = this.holidays ? this.holidays.length : 0;
         return count + (count === 1 ? ' holiday' : ' holidays');
     }
+    get mrzLines() {
+        if (!this.result || !this.result.idNumber) {
+            return [];
+        }
+        const id = this.result.idNumber;
+        const pad = (value) =>
+            (value + '<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<').substring(0, 36);
+        return [
+            { key: 'mrz1', text: pad('I<ZAF' + id) },
+            { key: 'mrz2', text: pad(id + '<<<ZAF<<') }
+        ];
+    }
 
     // ---------- Handlers ----------
     handleTabClick(event) {
         const id = event.currentTarget.dataset.id;
         if (id === 'tab1' || this.hasResult) {
             this.activeTab = id;
+        }
+    }
+
+    async handleAiSummary() {
+        this.isAiLoading = true;
+        this.aiSummary = '';
+        const names = (this.holidays || []).map((h) => h.name).join(', ');
+        try {
+            this.aiSummary = await getSummary({ idNumber: this.idNumber, holidayNames: names });
+        } catch (error) {
+            const message =
+                error && error.body && error.body.message
+                    ? error.body.message
+                    : 'AI is unavailable right now. Please try again.';
+            this.showToast('AI unavailable', message, 'error');
+        } finally {
+            this.isAiLoading = false;
         }
     }
 
@@ -130,6 +162,7 @@ export default class LwcPRJCSSAIdHolidayChecker extends LightningElement {
         this.idNumber = SAMPLE_ID;
         this.touched = true;
         this.validateClient();
+        this.handleSearch();
     }
 
     toggleSamples() {
@@ -141,6 +174,7 @@ export default class LwcPRJCSSAIdHolidayChecker extends LightningElement {
         this.touched = true;
         this.validateClient();
         this.showSamples = false;
+        this.handleSearch();
     }
 
     handleClear() {
@@ -154,6 +188,8 @@ export default class LwcPRJCSSAIdHolidayChecker extends LightningElement {
         this.dobDisplay = '';
         this.lastSearchedDisplay = undefined;
         this.showSamples = false;
+        this.aiSummary = '';
+        this.isAiLoading = false;
         this.activeTab = 'tab1';
     }
 

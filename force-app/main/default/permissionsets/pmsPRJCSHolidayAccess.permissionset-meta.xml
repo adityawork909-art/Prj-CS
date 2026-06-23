@@ -19,6 +19,10 @@
         <apexClass>clsPRJCSSAIdSearchService</apexClass>
         <enabled>true</enabled>
     </classAccesses>
+    <classAccesses>
+        <apexClass>clsPRJCSAiService</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
     <objectPermissions>
         <object>objPRJCSSAIdSearch__c</object>
         <allowCreate>true</allowCreate>
